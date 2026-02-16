@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Plus, Sprout, Trash2 } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Plus, ImagePlus } from 'lucide-react';
 import { useGarden } from '@/context/GardenContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import CropCard from '@/components/crops/CropCard';
+import CropDetailDialog from '@/components/crops/CropDetailDialog';
 import type { Crop, Harvest } from '@/types/garden';
 
 const statusBadge: Record<string, string> = {
@@ -21,6 +22,8 @@ const Crops = () => {
   const { crops, spaces, harvests, addCrop, addHarvest, removeCrop } = useGarden();
   const [cropOpen, setCropOpen] = useState(false);
   const [harvestOpen, setHarvestOpen] = useState(false);
+  const [selectedCrop, setSelectedCrop] = useState<Crop | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
 
   // Crop form
   const [cropName, setCropName] = useState('');
@@ -28,12 +31,22 @@ const Crops = () => {
   const [spaceId, setSpaceId] = useState('');
   const [plantedDate, setPlantedDate] = useState('');
   const [expectedHarvest, setExpectedHarvest] = useState('');
+  const [imagePreview, setImagePreview] = useState<string | undefined>();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Harvest form
   const [hCropId, setHCropId] = useState('');
   const [quantity, setQuantity] = useState('');
   const [unit, setUnit] = useState('lbs');
   const [quality, setQuality] = useState<Harvest['quality']>('good');
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setImagePreview(url);
+    }
+  };
 
   const handleAddCrop = () => {
     if (!cropName.trim() || !spaceId) return;
@@ -47,8 +60,9 @@ const Crops = () => {
       status: 'planted',
       notes: '',
       qrData: `CROP-${Date.now()}-${cropName.toUpperCase()}`,
+      imageUrl: imagePreview,
     });
-    setCropName(''); setVariety(''); setSpaceId(''); setPlantedDate(''); setExpectedHarvest('');
+    setCropName(''); setVariety(''); setSpaceId(''); setPlantedDate(''); setExpectedHarvest(''); setImagePreview(undefined);
     setCropOpen(false);
   };
 
@@ -69,6 +83,11 @@ const Crops = () => {
     });
     setHCropId(''); setQuantity(''); setUnit('lbs'); setQuality('good');
     setHarvestOpen(false);
+  };
+
+  const handleSelectCrop = (crop: Crop) => {
+    setSelectedCrop(crop);
+    setDetailOpen(true);
   };
 
   return (
@@ -136,6 +155,35 @@ const Crops = () => {
                 </Select>
                 <Input type="date" placeholder="Planted date" value={plantedDate} onChange={e => setPlantedDate(e.target.value)} />
                 <Input type="date" placeholder="Expected harvest" value={expectedHarvest} onChange={e => setExpectedHarvest(e.target.value)} />
+                
+                {/* Image upload */}
+                <div>
+                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                  {imagePreview ? (
+                    <div className="relative">
+                      <img src={imagePreview} alt="Preview" className="w-full h-32 object-cover rounded-lg" />
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        className="absolute bottom-2 right-2"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        Change
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full gap-2"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <ImagePlus className="h-4 w-4" /> Add Image
+                    </Button>
+                  )}
+                </div>
+
                 <Button onClick={handleAddCrop} className="w-full">Add Crop</Button>
               </div>
             </DialogContent>
@@ -151,45 +199,9 @@ const Crops = () => {
 
         <TabsContent value="crops">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-            {crops.map((crop, i) => {
-              const space = spaces.find(s => s.id === crop.spaceId);
-              return (
-                <motion.div
-                  key={crop.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: i * 0.05 }}
-                  className="stat-card group"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg garden-gradient text-primary-foreground font-bold">
-                        <Sprout className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-foreground">{crop.name}</h3>
-                        <p className="text-xs text-muted-foreground">{crop.variety}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge className={statusBadge[crop.status]}>{crop.status}</Badge>
-                      <button onClick={() => removeCrop(crop.id)} className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="text-sm text-muted-foreground space-y-1">
-                    <p>📍 {space?.name || 'Unknown'}</p>
-                    <p>🌱 Planted: {crop.plantedDate}</p>
-                    <p>📅 Expected: {crop.expectedHarvest}</p>
-                    {crop.notes && <p className="text-xs mt-2 italic">{crop.notes}</p>}
-                  </div>
-                  <div className="mt-3 pt-3 border-t">
-                    <p className="text-xs text-muted-foreground font-mono">QR: {crop.qrData}</p>
-                  </div>
-                </motion.div>
-              );
-            })}
+            {crops.map((crop, i) => (
+              <CropCard key={crop.id} crop={crop} index={i} onSelect={handleSelectCrop} onRemove={removeCrop} />
+            ))}
           </div>
         </TabsContent>
 
@@ -220,6 +232,13 @@ const Crops = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      <CropDetailDialog
+        crop={selectedCrop}
+        space={spaces.find(s => s.id === selectedCrop?.spaceId)}
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+      />
     </div>
   );
 };
