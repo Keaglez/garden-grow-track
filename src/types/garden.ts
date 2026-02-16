@@ -17,6 +17,7 @@ export interface Crop {
   status: 'planted' | 'growing' | 'ready' | 'harvested';
   notes: string;
   qrData: string;
+  imageUrl?: string;
 }
 
 export interface Harvest {
