@@ -40,3 +40,19 @@ export interface GardenUser {
   joinedDate: string;
   avatar: string;
 }
+
+export type ShopCategory = 'produce' | 'seedlings' | 'inputs';
+export type ShopStatus = 'in-stock' | 'sale' | 'out-of-stock';
+
+export interface ShopItem {
+  id: string;
+  name: string;
+  description: string;
+  category: ShopCategory;
+  price: number;
+  currency: string;
+  status: ShopStatus;
+  salePercent?: number;
+  imageUrl?: string;
+  createdAt: string;
+}

@@ -10,6 +10,7 @@ import Spaces from "./pages/Spaces";
 import Crops from "./pages/Crops";
 import Scanner from "./pages/Scanner";
 import UsersPage from "./pages/UsersPage";
+import Shop from "./pages/Shop";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
               <Route path="/crops" element={<Crops />} />
               <Route path="/scanner" element={<Scanner />} />
               <Route path="/users" element={<UsersPage />} />
+              <Route path="/shop" element={<Shop />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AppLayout>

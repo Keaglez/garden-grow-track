@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Sprout, MapPin, Users, QrCode, Leaf } from 'lucide-react';
+import { LayoutDashboard, Sprout, MapPin, Users, QrCode, Leaf, ShoppingBasket } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const navItems = [
@@ -7,9 +7,9 @@ const navItems = [
   { to: '/spaces', label: 'Spaces', icon: MapPin },
   { to: '/crops', label: 'Crops & Harvests', icon: Sprout },
   { to: '/scanner', label: 'QR Scanner', icon: QrCode },
+  { to: '/shop', label: 'Shop', icon: ShoppingBasket },
   { to: '/users', label: 'Users', icon: Users },
 ];
-
 const AppSidebar = () => {
   const location = useLocation();
 
