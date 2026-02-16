@@ -1,4 +1,4 @@
-import type { GardenSpace, Crop, Harvest, GardenUser } from '@/types/garden';
+import type { GardenSpace, Crop, Harvest, GardenUser, ShopItem } from '@/types/garden';
 
 export const sampleSpaces: GardenSpace[] = [
   { id: '1', name: 'Main Veggie Patch', description: 'Primary vegetable garden', size: '20x30 ft', type: 'plot', createdAt: '2025-03-01' },
@@ -24,4 +24,11 @@ export const sampleUsers: GardenUser[] = [
   { id: '1', name: 'Alex Green', email: 'alex@garden.com', role: 'owner', joinedDate: '2025-01-01', avatar: 'AG' },
   { id: '2', name: 'Sam Bloom', email: 'sam@garden.com', role: 'manager', joinedDate: '2025-02-15', avatar: 'SB' },
   { id: '3', name: 'Jordan Leaf', email: 'jordan@garden.com', role: 'gardener', joinedDate: '2025-03-01', avatar: 'JL' },
+];
+
+export const sampleShopItems: ShopItem[] = [
+  { id: '1', name: 'Fresh Tomatoes', description: 'Organic Roma tomatoes, hand-picked', category: 'produce', price: 4.50, currency: 'USD', status: 'in-stock', createdAt: '2025-06-01' },
+  { id: '2', name: 'Basil Seedlings', description: 'Sweet Genovese basil starter plants', category: 'seedlings', price: 3.00, currency: 'USD', status: 'sale', salePercent: 20, createdAt: '2025-06-05' },
+  { id: '3', name: 'Organic Compost', description: 'Premium garden compost, 25lb bag', category: 'inputs', price: 12.00, currency: 'USD', status: 'in-stock', createdAt: '2025-05-20' },
+  { id: '4', name: 'Lettuce Heads', description: 'Crisp butterhead lettuce', category: 'produce', price: 2.50, currency: 'USD', status: 'out-of-stock', createdAt: '2025-06-10' },
 ];
