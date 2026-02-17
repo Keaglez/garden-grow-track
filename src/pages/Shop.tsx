@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { Plus, ImagePlus, ShoppingBasket, Sprout, Package, Trash2, Tag, PercentCircle, Pencil } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useGarden } from '@/context/GardenContext';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +27,7 @@ const statusConfig: Record<ShopStatus, { label: string; className: string }> = {
 
 const Shop = () => {
   const { shopItems, addShopItem, removeShopItem, updateShopItem, updateShopItemStatus } = useGarden();
+  const { isAuthenticated } = useAuth();
   const [addOpen, setAddOpen] = useState(false);
   const [editItem, setEditItem] = useState<ShopItem | null>(null);
   const [statusDialogItem, setStatusDialogItem] = useState<ShopItem | null>(null);
@@ -155,17 +157,19 @@ const Shop = () => {
               </div>
               <span className="text-sm text-muted-foreground">Qty: {item.quantity}</span>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="flex-1 gap-1" onClick={() => openEdit(item)}>
-                <Pencil className="h-3 w-3" /> Edit
-              </Button>
-              <Button variant="outline" size="sm" className="flex-1 gap-1" onClick={() => openStatusDialog(item)}>
-                <Tag className="h-3 w-3" /> Status
-              </Button>
-              <Button variant="outline" size="sm" className="text-destructive hover:text-destructive" onClick={() => removeShopItem(item.id)}>
-                <Trash2 className="h-3 w-3" />
-              </Button>
-            </div>
+            {isAuthenticated && (
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" className="flex-1 gap-1" onClick={() => openEdit(item)}>
+                  <Pencil className="h-3 w-3" /> Edit
+                </Button>
+                <Button variant="outline" size="sm" className="flex-1 gap-1" onClick={() => openStatusDialog(item)}>
+                  <Tag className="h-3 w-3" /> Status
+                </Button>
+                <Button variant="outline" size="sm" className="text-destructive hover:text-destructive" onClick={() => removeShopItem(item.id)}>
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>
@@ -213,15 +217,17 @@ const Shop = () => {
           <h1 className="text-3xl font-bold text-foreground">Shop</h1>
           <p className="mt-1 text-muted-foreground">Sell your produce, seedlings & inputs</p>
         </div>
-        <Dialog open={addOpen} onOpenChange={open => { setAddOpen(open); if (!open) resetForm(); }}>
-          <DialogTrigger asChild>
-            <Button className="gap-2"><Plus className="h-4 w-4" /> Add Item</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>Add Shop Item</DialogTitle></DialogHeader>
-            {renderForm(handleAdd, 'Add to Shop')}
-          </DialogContent>
-        </Dialog>
+        {isAuthenticated && (
+          <Dialog open={addOpen} onOpenChange={open => { setAddOpen(open); if (!open) resetForm(); }}>
+            <DialogTrigger asChild>
+              <Button className="gap-2"><Plus className="h-4 w-4" /> Add Item</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Add Shop Item</DialogTitle></DialogHeader>
+              {renderForm(handleAdd, 'Add to Shop')}
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       {/* Edit dialog */}
