@@ -35,7 +35,7 @@ const Index = () => {
         />
         <StatCard
           title="Total Harvest"
-          value={`${totalYield} lbs`}
+          value={`${totalYield} kg`}
           subtitle={`${harvests.length} harvests recorded`}
           icon={TrendingUp}
           colorClass="harvest-gradient text-harvest-gold-foreground"

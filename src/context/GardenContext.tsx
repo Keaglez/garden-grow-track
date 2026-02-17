@@ -17,6 +17,7 @@ interface GardenContextType {
   removeCrop: (id: string) => void;
   removeUser: (id: string) => void;
   removeShopItem: (id: string) => void;
+  updateShopItem: (item: ShopItem) => void;
   updateShopItemStatus: (id: string, status: ShopStatus, salePercent?: number) => void;
   getCropByQr: (qrData: string) => Crop | undefined;
 }
@@ -39,12 +40,14 @@ export const GardenProvider = ({ children }: { children: ReactNode }) => {
   const removeCrop = (id: string) => setCrops(prev => prev.filter(c => c.id !== id));
   const removeUser = (id: string) => setUsers(prev => prev.filter(u => u.id !== id));
   const removeShopItem = (id: string) => setShopItems(prev => prev.filter(i => i.id !== id));
+  const updateShopItem = (item: ShopItem) =>
+    setShopItems(prev => prev.map(i => i.id === item.id ? item : i));
   const updateShopItemStatus = (id: string, status: ShopStatus, salePercent?: number) =>
     setShopItems(prev => prev.map(i => i.id === id ? { ...i, status, salePercent: status === 'sale' ? salePercent : undefined } : i));
   const getCropByQr = (qrData: string) => crops.find(c => c.qrData === qrData);
 
   return (
-    <GardenContext.Provider value={{ spaces, crops, harvests, users, shopItems, addSpace, addCrop, addHarvest, addUser, addShopItem, removeSpace, removeCrop, removeUser, removeShopItem, updateShopItemStatus, getCropByQr }}>
+    <GardenContext.Provider value={{ spaces, crops, harvests, users, shopItems, addSpace, addCrop, addHarvest, addUser, addShopItem, removeSpace, removeCrop, removeUser, removeShopItem, updateShopItem, updateShopItemStatus, getCropByQr }}>
       {children}
     </GardenContext.Provider>
   );
