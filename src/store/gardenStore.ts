@@ -15,9 +15,9 @@ export const sampleCrops: Crop[] = [
 ];
 
 export const sampleHarvests: Harvest[] = [
-  { id: '1', cropId: '5', cropName: 'Cucumber', spaceName: 'Greenhouse A', quantity: 12, unit: 'lbs', harvestDate: '2025-06-18', quality: 'excellent', notes: 'Best batch yet' },
-  { id: '2', cropId: '2', cropName: 'Basil', spaceName: 'Herb Corner', quantity: 2, unit: 'lbs', harvestDate: '2025-06-10', quality: 'good', notes: 'Fragrant and fresh' },
-  { id: '3', cropId: '1', cropName: 'Tomato', spaceName: 'Main Veggie Patch', quantity: 8, unit: 'lbs', harvestDate: '2025-06-25', quality: 'excellent', notes: 'Ripe and juicy' },
+  { id: '1', cropId: '5', cropName: 'Cucumber', spaceName: 'Greenhouse A', quantity: 12, unit: 'kg', harvestDate: '2025-06-18', quality: 'excellent', notes: 'Best batch yet' },
+  { id: '2', cropId: '2', cropName: 'Basil', spaceName: 'Herb Corner', quantity: 2, unit: 'kg', harvestDate: '2025-06-10', quality: 'good', notes: 'Fragrant and fresh' },
+  { id: '3', cropId: '1', cropName: 'Tomato', spaceName: 'Main Veggie Patch', quantity: 8, unit: 'kg', harvestDate: '2025-06-25', quality: 'excellent', notes: 'Ripe and juicy' },
 ];
 
 export const sampleUsers: GardenUser[] = [
@@ -27,8 +27,8 @@ export const sampleUsers: GardenUser[] = [
 ];
 
 export const sampleShopItems: ShopItem[] = [
-  { id: '1', name: 'Fresh Tomatoes', description: 'Organic Roma tomatoes, hand-picked', category: 'produce', price: 4.50, currency: 'USD', status: 'in-stock', createdAt: '2025-06-01' },
-  { id: '2', name: 'Basil Seedlings', description: 'Sweet Genovese basil starter plants', category: 'seedlings', price: 3.00, currency: 'USD', status: 'sale', salePercent: 20, createdAt: '2025-06-05' },
-  { id: '3', name: 'Organic Compost', description: 'Premium garden compost, 25lb bag', category: 'inputs', price: 12.00, currency: 'USD', status: 'in-stock', createdAt: '2025-05-20' },
-  { id: '4', name: 'Lettuce Heads', description: 'Crisp butterhead lettuce', category: 'produce', price: 2.50, currency: 'USD', status: 'out-of-stock', createdAt: '2025-06-10' },
+  { id: '1', name: 'Fresh Tomatoes', description: 'Organic Roma tomatoes, hand-picked', category: 'produce', price: 4.50, quantity: 20, currency: 'ZAR', status: 'in-stock', createdAt: '2025-06-01' },
+  { id: '2', name: 'Basil Seedlings', description: 'Sweet Genovese basil starter plants', category: 'seedlings', price: 3.00, quantity: 50, currency: 'ZAR', status: 'sale', salePercent: 20, createdAt: '2025-06-05' },
+  { id: '3', name: 'Organic Compost', description: 'Premium garden compost, 10kg bag', category: 'inputs', price: 12.00, quantity: 15, currency: 'ZAR', status: 'in-stock', createdAt: '2025-05-20' },
+  { id: '4', name: 'Lettuce Heads', description: 'Crisp butterhead lettuce', category: 'produce', price: 2.50, quantity: 0, currency: 'ZAR', status: 'out-of-stock', createdAt: '2025-06-10' },
 ];

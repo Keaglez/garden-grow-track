@@ -37,7 +37,7 @@ const Crops = () => {
   // Harvest form
   const [hCropId, setHCropId] = useState('');
   const [quantity, setQuantity] = useState('');
-  const [unit, setUnit] = useState('lbs');
+  const [unit, setUnit] = useState('kg');
   const [quality, setQuality] = useState<Harvest['quality']>('good');
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,7 +81,7 @@ const Crops = () => {
       quality,
       notes: '',
     });
-    setHCropId(''); setQuantity(''); setUnit('lbs'); setQuality('good');
+    setHCropId(''); setQuantity(''); setUnit('kg'); setQuality('good');
     setHarvestOpen(false);
   };
 
@@ -118,7 +118,6 @@ const Crops = () => {
                   <Select value={unit} onValueChange={setUnit}>
                     <SelectTrigger className="w-28"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="lbs">lbs</SelectItem>
                       <SelectItem value="kg">kg</SelectItem>
                       <SelectItem value="pieces">pcs</SelectItem>
                       <SelectItem value="bunches">bunches</SelectItem>

@@ -50,6 +50,7 @@ export interface ShopItem {
   description: string;
   category: ShopCategory;
   price: number;
+  quantity: number;
   currency: string;
   status: ShopStatus;
   salePercent?: number;
