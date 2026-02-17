@@ -1,6 +1,7 @@
-import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Sprout, MapPin, Users, QrCode, Leaf, ShoppingBasket } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Sprout, MapPin, Users, QrCode, Leaf, ShoppingBasket, LogIn, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/context/AuthContext';
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -12,6 +13,8 @@ const navItems = [
 ];
 const AppSidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { isAuthenticated, user, logout } = useAuth();
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-sidebar-border bg-sidebar flex flex-col">
@@ -52,7 +55,19 @@ const AppSidebar = () => {
         })}
       </nav>
 
-      <div className="px-4 py-4 border-t border-sidebar-border">
+      <div className="px-4 py-4 border-t border-sidebar-border space-y-3">
+        {isAuthenticated ? (
+          <div className="flex items-center justify-between px-2">
+            <span className="text-xs text-sidebar-foreground/70 truncate">{user?.email}</span>
+            <button onClick={() => { logout(); navigate('/'); }} className="text-sidebar-foreground/60 hover:text-sidebar-foreground">
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <Link to="/login" className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent">
+            <LogIn className="h-4 w-4" /> Sign In
+          </Link>
+        )}
         <div className="rounded-lg bg-sidebar-accent p-4">
           <p className="text-xs font-medium text-sidebar-foreground/80">Season Progress</p>
           <div className="mt-2 h-2 rounded-full bg-sidebar-border overflow-hidden">

@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { GardenProvider } from "@/context/GardenContext";
+import { AuthProvider } from "@/context/AuthContext";
 import AppLayout from "@/components/layout/AppLayout";
 import Index from "./pages/Index";
 import Spaces from "./pages/Spaces";
@@ -11,6 +12,7 @@ import Crops from "./pages/Crops";
 import Scanner from "./pages/Scanner";
 import UsersPage from "./pages/UsersPage";
 import Shop from "./pages/Shop";
+import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,21 +22,26 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <GardenProvider>
-        <BrowserRouter>
-          <AppLayout>
+      <AuthProvider>
+        <GardenProvider>
+          <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/spaces" element={<Spaces />} />
-              <Route path="/crops" element={<Crops />} />
-              <Route path="/scanner" element={<Scanner />} />
-              <Route path="/users" element={<UsersPage />} />
-              <Route path="/shop" element={<Shop />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/shop" element={
+                <AppLayout>
+                  <Shop />
+                </AppLayout>
+              } />
+              <Route path="/" element={<AppLayout><Index /></AppLayout>} />
+              <Route path="/spaces" element={<AppLayout><Spaces /></AppLayout>} />
+              <Route path="/crops" element={<AppLayout><Crops /></AppLayout>} />
+              <Route path="/scanner" element={<AppLayout><Scanner /></AppLayout>} />
+              <Route path="/users" element={<AppLayout><UsersPage /></AppLayout>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </AppLayout>
-        </BrowserRouter>
-      </GardenProvider>
+          </BrowserRouter>
+        </GardenProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
