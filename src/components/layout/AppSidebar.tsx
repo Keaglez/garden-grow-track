@@ -59,7 +59,7 @@ const AppSidebar = () => {
         {isAuthenticated ? (
           <div className="flex items-center justify-between px-2">
             <span className="text-xs text-sidebar-foreground/70 truncate">{user?.email}</span>
-            <button onClick={() => { logout(); navigate('/'); }} className="text-sidebar-foreground/60 hover:text-sidebar-foreground">
+            <button onClick={() => { logout(); navigate('/login'); }} className="text-sidebar-foreground/60 hover:text-sidebar-foreground">
               <LogOut className="h-4 w-4" />
             </button>
           </div>
