@@ -3,18 +3,20 @@ import { LayoutDashboard, Sprout, MapPin, Users, QrCode, Leaf, ShoppingBasket, L
 import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 
-const navItems = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/spaces', label: 'Spaces', icon: MapPin },
-  { to: '/crops', label: 'Crops & Harvests', icon: Sprout },
-  { to: '/scanner', label: 'QR Scanner', icon: QrCode },
-  { to: '/shop', label: 'Shop', icon: ShoppingBasket },
-  { to: '/users', label: 'Users', icon: Users },
+const allNavItems = [
+  { to: '/', label: 'Dashboard', icon: LayoutDashboard, authRequired: true },
+  { to: '/spaces', label: 'Spaces', icon: MapPin, authRequired: true },
+  { to: '/crops', label: 'Crops & Harvests', icon: Sprout, authRequired: true },
+  { to: '/scanner', label: 'QR Scanner', icon: QrCode, authRequired: true },
+  { to: '/shop', label: 'Shop', icon: ShoppingBasket, authRequired: false },
+  { to: '/users', label: 'Users', icon: Users, authRequired: true },
 ];
 const AppSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
+
+  const navItems = allNavItems.filter(item => !item.authRequired || isAuthenticated);
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-sidebar-border bg-sidebar flex flex-col">
