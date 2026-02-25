@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, ImagePlus, ShoppingBasket, Sprout, Package, Trash2, Tag, PercentCircle, Pencil, LogIn } from 'lucide-react';
+import { compressImageToBase64 } from '@/lib/imageUtils';
 import { motion } from 'framer-motion';
 import { useGarden } from '@/context/GardenContext';
 import { useAuth } from '@/context/AuthContext';
@@ -51,12 +52,15 @@ const Shop = () => {
     setName(''); setDescription(''); setCategory('produce'); setPrice(''); setQuantity(''); setImagePreview(undefined);
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
+      try {
+        const base64 = await compressImageToBase64(file);
+        setImagePreview(base64);
+      } catch (err) {
+        console.error('Image compression failed:', err);
+      }
     }
   };
 
