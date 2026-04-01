@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, MapPin, Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { useGarden } from '@/context/GardenContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,54 +17,59 @@ const spaceTypeIcons: Record<string, string> = {
 };
 
 const Spaces = () => {
-  const { spaces, crops, addSpace, removeSpace } = useGarden();
+  const { spaces, locations, crops, addSpace, removeSpace } = useGarden();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [size, setSize] = useState('');
+  const [locationId, setLocationId] = useState('');
   const [type, setType] = useState<GardenSpace['type']>('plot');
 
   const handleAdd = () => {
-    if (!name.trim()) return;
+    if (!name.trim() || !locationId) return;
     addSpace({
       id: Date.now().toString(),
       name: name.trim(),
-      description: description.trim(),
-      size: size.trim(),
+      locationId,
       type,
       createdAt: new Date().toISOString().split('T')[0],
     });
     setName('');
-    setDescription('');
-    setSize('');
+    setLocationId('');
     setType('plot');
     setOpen(false);
   };
+
+  const getLocationName = (locId: string) => locations.find(l => l.id === locId)?.name || 'Unknown';
 
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Garden Spaces</h1>
-          <p className="mt-1 text-muted-foreground">Manage your growing areas</p>
+          <p className="mt-1 text-muted-foreground">Manage your growing areas within locations</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" /> Add Space
-            </Button>
+            <Button className="gap-2"><Plus className="h-4 w-4" /> Add Space</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add Garden Space</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 pt-4">
+              <Select value={locationId} onValueChange={setLocationId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Location" />
+                </SelectTrigger>
+                <SelectContent>
+                  {locations.map(loc => (
+                    <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Input placeholder="Space name" value={name} onChange={e => setName(e.target.value)} />
-              <Input placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} />
-              <Input placeholder="Size (e.g., 10x20 ft)" value={size} onChange={e => setSize(e.target.value)} />
               <Select value={type} onValueChange={(v) => setType(v as GardenSpace['type'])}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Type" />
+                  <SelectValue placeholder="Space Type" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="plot">Plot</SelectItem>
@@ -106,11 +111,8 @@ const Spaces = () => {
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
-              <p className="text-sm text-muted-foreground mb-3">{space.description}</p>
               <div className="flex items-center justify-between text-sm">
-                <span className="flex items-center gap-1 text-muted-foreground">
-                  <MapPin className="h-3 w-3" /> {space.size}
-                </span>
+                <span className="text-muted-foreground">📍 {getLocationName(space.locationId)}</span>
                 <span className="font-medium text-primary">{cropCount} crops</span>
               </div>
             </motion.div>

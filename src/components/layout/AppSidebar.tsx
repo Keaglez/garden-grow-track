@@ -17,6 +17,7 @@ import { NavLink } from '@/components/NavLink';
 
 const allNavItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, authRequired: true },
+  { to: '/locations', label: 'Locations', icon: Globe, authRequired: true },
   { to: '/spaces', label: 'Spaces', icon: MapPin, authRequired: true },
   { to: '/crops', label: 'Crops & Harvests', icon: Sprout, authRequired: true },
   { to: '/scanner', label: 'QR Scanner', icon: QrCode, authRequired: true },
