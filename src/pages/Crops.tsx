@@ -20,7 +20,7 @@ const statusBadge: Record<string, string> = {
 };
 
 const Crops = () => {
-  const { crops, spaces, harvests, addCrop, addHarvest, removeCrop } = useGarden();
+  const { crops, spaces, locations, harvests, addCrop, addHarvest, removeCrop } = useGarden();
   const [cropOpen, setCropOpen] = useState(false);
   const [harvestOpen, setHarvestOpen] = useState(false);
   const [selectedCrop, setSelectedCrop] = useState<Crop | null>(null);
