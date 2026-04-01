@@ -20,7 +20,7 @@ const statusBadge: Record<string, string> = {
 };
 
 const Crops = () => {
-  const { crops, spaces, harvests, addCrop, addHarvest, removeCrop } = useGarden();
+  const { crops, spaces, locations, harvests, addCrop, addHarvest, removeCrop } = useGarden();
   const [cropOpen, setCropOpen] = useState(false);
   const [harvestOpen, setHarvestOpen] = useState(false);
   const [selectedCrop, setSelectedCrop] = useState<Crop | null>(null);
@@ -29,7 +29,10 @@ const Crops = () => {
   // Crop form
   const [cropName, setCropName] = useState('');
   const [variety, setVariety] = useState('');
+  const [locationId, setLocationId] = useState('');
   const [spaceId, setSpaceId] = useState('');
+
+  const filteredSpaces = locationId ? spaces.filter(s => s.locationId === locationId) : spaces;
   const [plantedDate, setPlantedDate] = useState('');
   const [expectedHarvest, setExpectedHarvest] = useState('');
   const [imagePreview, setImagePreview] = useState<string | undefined>();
@@ -72,7 +75,7 @@ const Crops = () => {
       qrData: `CROP-${Date.now()}-${cropName.toUpperCase()}`,
       imageUrl: imagePreview,
     });
-    setCropName(''); setVariety(''); setSpaceId(''); setPlantedDate(''); setExpectedHarvest(''); setImagePreview(undefined);
+    setCropName(''); setVariety(''); setLocationId(''); setSpaceId(''); setPlantedDate(''); setExpectedHarvest(''); setImagePreview(undefined);
     setCropOpen(false);
   };
 
@@ -156,10 +159,16 @@ const Crops = () => {
               <div className="space-y-4 pt-4">
                 <Input placeholder="Crop name" value={cropName} onChange={e => setCropName(e.target.value)} />
                 <Input placeholder="Variety" value={variety} onChange={e => setVariety(e.target.value)} />
-                <Select value={spaceId} onValueChange={setSpaceId}>
-                  <SelectTrigger><SelectValue placeholder="Select space" /></SelectTrigger>
+                <Select value={locationId} onValueChange={(val) => { setLocationId(val); setSpaceId(''); }}>
+                  <SelectTrigger><SelectValue placeholder="Select location" /></SelectTrigger>
                   <SelectContent>
-                    {spaces.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                    {locations.map(l => <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <Select value={spaceId} onValueChange={setSpaceId} disabled={!locationId}>
+                  <SelectTrigger><SelectValue placeholder={locationId ? "Select space" : "Select a location first"} /></SelectTrigger>
+                  <SelectContent>
+                    {filteredSpaces.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 <Input type="date" placeholder="Planted date" value={plantedDate} onChange={e => setPlantedDate(e.target.value)} />
