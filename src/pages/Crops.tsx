@@ -29,7 +29,10 @@ const Crops = () => {
   // Crop form
   const [cropName, setCropName] = useState('');
   const [variety, setVariety] = useState('');
+  const [locationId, setLocationId] = useState('');
   const [spaceId, setSpaceId] = useState('');
+
+  const filteredSpaces = locationId ? spaces.filter(s => s.locationId === locationId) : spaces;
   const [plantedDate, setPlantedDate] = useState('');
   const [expectedHarvest, setExpectedHarvest] = useState('');
   const [imagePreview, setImagePreview] = useState<string | undefined>();
