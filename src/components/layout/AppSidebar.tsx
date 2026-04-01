@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Sprout, MapPin, Users, QrCode, Leaf, ShoppingBasket, LogIn, LogOut } from 'lucide-react';
+import { LayoutDashboard, Sprout, MapPin, Users, QrCode, Leaf, ShoppingBasket, LogIn, LogOut, Globe } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import {
   Sidebar,
