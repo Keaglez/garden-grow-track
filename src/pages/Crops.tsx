@@ -72,7 +72,7 @@ const Crops = () => {
       qrData: `CROP-${Date.now()}-${cropName.toUpperCase()}`,
       imageUrl: imagePreview,
     });
-    setCropName(''); setVariety(''); setSpaceId(''); setPlantedDate(''); setExpectedHarvest(''); setImagePreview(undefined);
+    setCropName(''); setVariety(''); setLocationId(''); setSpaceId(''); setPlantedDate(''); setExpectedHarvest(''); setImagePreview(undefined);
     setCropOpen(false);
   };
 
