@@ -7,6 +7,7 @@ import { GardenProvider } from "@/context/GardenContext";
 import { AuthProvider } from "@/context/AuthContext";
 import AppLayout from "@/components/layout/AppLayout";
 import Index from "./pages/Index";
+import Locations from "./pages/Locations";
 import Spaces from "./pages/Spaces";
 import Crops from "./pages/Crops";
 import Scanner from "./pages/Scanner";
