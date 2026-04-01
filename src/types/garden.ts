@@ -1,8 +1,15 @@
+export interface Location {
+  id: string;
+  name: string;
+  size: string;
+  imageUrl?: string;
+  createdAt: string;
+}
+
 export interface GardenSpace {
   id: string;
   name: string;
-  description: string;
-  size: string;
+  locationId: string;
   type: 'raised-bed' | 'greenhouse' | 'plot' | 'container' | 'indoor';
   createdAt: string;
 }

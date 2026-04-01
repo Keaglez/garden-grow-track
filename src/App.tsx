@@ -7,6 +7,7 @@ import { GardenProvider } from "@/context/GardenContext";
 import { AuthProvider } from "@/context/AuthContext";
 import AppLayout from "@/components/layout/AppLayout";
 import Index from "./pages/Index";
+import Locations from "./pages/Locations";
 import Spaces from "./pages/Spaces";
 import Crops from "./pages/Crops";
 import Scanner from "./pages/Scanner";
@@ -33,6 +34,7 @@ const App = () => (
                 </AppLayout>
               } />
               <Route path="/" element={<AppLayout><Index /></AppLayout>} />
+              <Route path="/locations" element={<AppLayout><Locations /></AppLayout>} />
               <Route path="/spaces" element={<AppLayout><Spaces /></AppLayout>} />
               <Route path="/crops" element={<AppLayout><Crops /></AppLayout>} />
               <Route path="/scanner" element={<AppLayout><Scanner /></AppLayout>} />

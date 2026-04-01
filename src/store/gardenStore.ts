@@ -1,9 +1,14 @@
-import type { GardenSpace, Crop, Harvest, GardenUser, ShopItem } from '@/types/garden';
+import type { Location, GardenSpace, Crop, Harvest, GardenUser, ShopItem } from '@/types/garden';
+
+export const sampleLocations: Location[] = [
+  { id: '1', name: 'Main Farm', size: '2 hectares', createdAt: '2025-01-01' },
+  { id: '2', name: 'Nursery Site', size: '0.5 hectares', createdAt: '2025-02-01' },
+];
 
 export const sampleSpaces: GardenSpace[] = [
-  { id: '1', name: 'Main Veggie Patch', description: 'Primary vegetable garden', size: '20x30 ft', type: 'plot', createdAt: '2025-03-01' },
-  { id: '2', name: 'Herb Corner', description: 'Kitchen herbs and aromatics', size: '8x8 ft', type: 'raised-bed', createdAt: '2025-03-15' },
-  { id: '3', name: 'Greenhouse A', description: 'Tropical and warm-season crops', size: '12x20 ft', type: 'greenhouse', createdAt: '2025-02-10' },
+  { id: '1', name: 'Main Veggie Patch', locationId: '1', type: 'plot', createdAt: '2025-03-01' },
+  { id: '2', name: 'Herb Corner', locationId: '1', type: 'raised-bed', createdAt: '2025-03-15' },
+  { id: '3', name: 'Greenhouse A', locationId: '2', type: 'greenhouse', createdAt: '2025-02-10' },
 ];
 
 export const sampleCrops: Crop[] = [

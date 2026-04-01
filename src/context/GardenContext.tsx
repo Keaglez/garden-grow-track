@@ -1,13 +1,16 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import type { GardenSpace, Crop, Harvest, GardenUser, ShopItem, ShopStatus } from '@/types/garden';
-import { sampleSpaces, sampleCrops, sampleHarvests, sampleUsers, sampleShopItems } from '@/store/gardenStore';
+import type { Location, GardenSpace, Crop, Harvest, GardenUser, ShopItem, ShopStatus } from '@/types/garden';
+import { sampleLocations, sampleSpaces, sampleCrops, sampleHarvests, sampleUsers, sampleShopItems } from '@/store/gardenStore';
 
 interface GardenContextType {
+  locations: Location[];
   spaces: GardenSpace[];
   crops: Crop[];
   harvests: Harvest[];
   users: GardenUser[];
   shopItems: ShopItem[];
+  addLocation: (location: Location) => void;
+  removeLocation: (id: string) => void;
   addSpace: (space: GardenSpace) => void;
   addCrop: (crop: Crop) => void;
   addHarvest: (harvest: Harvest) => void;
@@ -25,12 +28,15 @@ interface GardenContextType {
 const GardenContext = createContext<GardenContextType | undefined>(undefined);
 
 export const GardenProvider = ({ children }: { children: ReactNode }) => {
+  const [locations, setLocations] = useState<Location[]>(sampleLocations);
   const [spaces, setSpaces] = useState<GardenSpace[]>(sampleSpaces);
   const [crops, setCrops] = useState<Crop[]>(sampleCrops);
   const [harvests, setHarvests] = useState<Harvest[]>(sampleHarvests);
   const [users, setUsers] = useState<GardenUser[]>(sampleUsers);
   const [shopItems, setShopItems] = useState<ShopItem[]>(sampleShopItems);
 
+  const addLocation = (location: Location) => setLocations(prev => [...prev, location]);
+  const removeLocation = (id: string) => setLocations(prev => prev.filter(l => l.id !== id));
   const addSpace = (space: GardenSpace) => setSpaces(prev => [...prev, space]);
   const addCrop = (crop: Crop) => setCrops(prev => [...prev, crop]);
   const addHarvest = (harvest: Harvest) => setHarvests(prev => [...prev, harvest]);
@@ -47,7 +53,7 @@ export const GardenProvider = ({ children }: { children: ReactNode }) => {
   const getCropByQr = (qrData: string) => crops.find(c => c.qrData === qrData);
 
   return (
-    <GardenContext.Provider value={{ spaces, crops, harvests, users, shopItems, addSpace, addCrop, addHarvest, addUser, addShopItem, removeSpace, removeCrop, removeUser, removeShopItem, updateShopItem, updateShopItemStatus, getCropByQr }}>
+    <GardenContext.Provider value={{ locations, spaces, crops, harvests, users, shopItems, addLocation, removeLocation, addSpace, addCrop, addHarvest, addUser, addShopItem, removeSpace, removeCrop, removeUser, removeShopItem, updateShopItem, updateShopItemStatus, getCropByQr }}>
       {children}
     </GardenContext.Provider>
   );
