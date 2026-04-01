@@ -156,10 +156,16 @@ const Crops = () => {
               <div className="space-y-4 pt-4">
                 <Input placeholder="Crop name" value={cropName} onChange={e => setCropName(e.target.value)} />
                 <Input placeholder="Variety" value={variety} onChange={e => setVariety(e.target.value)} />
-                <Select value={spaceId} onValueChange={setSpaceId}>
-                  <SelectTrigger><SelectValue placeholder="Select space" /></SelectTrigger>
+                <Select value={locationId} onValueChange={(val) => { setLocationId(val); setSpaceId(''); }}>
+                  <SelectTrigger><SelectValue placeholder="Select location" /></SelectTrigger>
                   <SelectContent>
-                    {spaces.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                    {locations.map(l => <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <Select value={spaceId} onValueChange={setSpaceId} disabled={!locationId}>
+                  <SelectTrigger><SelectValue placeholder={locationId ? "Select space" : "Select a location first"} /></SelectTrigger>
+                  <SelectContent>
+                    {filteredSpaces.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 <Input type="date" placeholder="Planted date" value={plantedDate} onChange={e => setPlantedDate(e.target.value)} />
