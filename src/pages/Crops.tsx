@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Plus, ImagePlus } from 'lucide-react';
+import BluetoothScaleInput from '@/components/crops/BluetoothScaleInput';
 import { compressImageToBase64 } from '@/lib/imageUtils';
 import { useGarden } from '@/context/GardenContext';
 import { Button } from '@/components/ui/button';
