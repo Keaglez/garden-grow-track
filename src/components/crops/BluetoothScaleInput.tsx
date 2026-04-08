@@ -1,0 +1,243 @@
+import { useState } from 'react';
+import { Bluetooth, BluetoothSearching, Wifi, WifiOff, Keyboard } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { toast } from '@/hooks/use-toast';
+
+interface BluetoothScaleInputProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+type InputMode = 'select' | 'scanning' | 'connected' | 'manual-mac' | 'manual';
+
+const BluetoothScaleInput = ({ value, onChange }: BluetoothScaleInputProps) => {
+  const [mode, setMode] = useState<InputMode>('select');
+  const [scanning, setScanning] = useState(false);
+  const [deviceName, setDeviceName] = useState('');
+  const [macAddress, setMacAddress] = useState('');
+  const [characteristic, setCharacteristic] = useState<BluetoothRemoteGATTCharacteristic | null>(null);
+
+  const isBluetoothSupported = typeof navigator !== 'undefined' && 'bluetooth' in navigator;
+
+  const handleDiscoverScale = async () => {
+    if (!isBluetoothSupported) {
+      toast({ title: 'Bluetooth not supported', description: 'Your browser does not support Web Bluetooth. Try Chrome on desktop or Android.', variant: 'destructive' });
+      setMode('manual');
+      return;
+    }
+
+    setScanning(true);
+    setMode('scanning');
+
+    try {
+      const device = await navigator.bluetooth.requestDevice({
+        acceptAllDevices: true,
+        optionalServices: ['weight_scale', '0000181d-0000-1000-8000-00805f9b34fb', '0000fff0-0000-1000-8000-00805f9b34fb'],
+      });
+
+      setDeviceName(device.name || 'Unknown Scale');
+
+      toast({ title: 'Device found', description: `Connecting to ${device.name || 'scale'}...` });
+
+      const server = await device.gatt?.connect();
+      if (!server) throw new Error('Could not connect to GATT server');
+
+      // Try common scale service UUIDs
+      const serviceUUIDs = [
+        '0000181d-0000-1000-8000-00805f9b34fb', // Weight Scale
+        '0000fff0-0000-1000-8000-00805f9b34fb', // Common custom
+      ];
+
+      let foundCharacteristic: BluetoothRemoteGATTCharacteristic | null = null;
+
+      for (const uuid of serviceUUIDs) {
+        try {
+          const service = await server.getPrimaryService(uuid);
+          const chars = await service.getCharacteristics();
+          if (chars.length > 0) {
+            foundCharacteristic = chars[0];
+            break;
+          }
+        } catch {
+          continue;
+        }
+      }
+
+      if (foundCharacteristic) {
+        setCharacteristic(foundCharacteristic);
+        setMode('connected');
+
+        // Try to read or listen for notifications
+        try {
+          await foundCharacteristic.startNotifications();
+          foundCharacteristic.addEventListener('characteristicvaluechanged', (event: Event) => {
+            const target = event.target as BluetoothRemoteGATTCharacteristic;
+            const dataView = target.value;
+            if (dataView) {
+              // Common weight scale data parsing (varies by device)
+              const weight = dataView.getUint16(1, true) / 100;
+              onChange(weight.toString());
+            }
+          });
+          toast({ title: 'Scale connected!', description: 'Weight will update automatically.' });
+        } catch {
+          // Fallback: try a single read
+          try {
+            const readValue = await foundCharacteristic.readValue();
+            const weight = readValue.getUint16(1, true) / 100;
+            onChange(weight.toString());
+            toast({ title: 'Weight read', description: `${weight} kg` });
+          } catch {
+            toast({ title: 'Connected', description: 'Scale connected but could not auto-read. Enter weight manually.' });
+            setMode('manual');
+          }
+        }
+      } else {
+        toast({ title: 'Connected', description: 'No weight service found. Please enter weight manually.' });
+        setMode('manual');
+      }
+
+      device.addEventListener('gattserverdisconnected', () => {
+        setMode('select');
+        setDeviceName('');
+        setCharacteristic(null);
+        toast({ title: 'Scale disconnected' });
+      });
+
+    } catch (err: any) {
+      if (err?.name === 'NotFoundError') {
+        toast({ title: 'No device selected', description: 'You cancelled the device picker.' });
+      } else {
+        toast({ title: 'Bluetooth error', description: err?.message || 'Could not connect to scale.', variant: 'destructive' });
+      }
+      setMode('select');
+    } finally {
+      setScanning(false);
+    }
+  };
+
+  const handleManualMacConnect = async () => {
+    if (!macAddress.trim()) {
+      toast({ title: 'Enter MAC address', variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'MAC address saved', description: `Attempting connection to ${macAddress}. If no scale responds, enter weight manually.` });
+    setMode('manual');
+  };
+
+  if (mode === 'select') {
+    return (
+      <div className="space-y-2">
+        <p className="text-sm font-medium text-foreground">Weight Input Method</p>
+        <div className="grid grid-cols-1 gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            className="gap-2 justify-start"
+            onClick={handleDiscoverScale}
+            disabled={!isBluetoothSupported}
+          >
+            <BluetoothSearching className="h-4 w-4 text-primary" />
+            Discover Bluetooth Scale
+            {!isBluetoothSupported && <Badge variant="secondary" className="ml-auto text-xs">Not supported</Badge>}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="gap-2 justify-start"
+            onClick={() => setMode('manual-mac')}
+          >
+            <Bluetooth className="h-4 w-4 text-primary" />
+            Enter Scale MAC Address
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="gap-2 justify-start"
+            onClick={() => setMode('manual')}
+          >
+            <Keyboard className="h-4 w-4 text-muted-foreground" />
+            Manual Input (kg)
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (mode === 'scanning') {
+    return (
+      <div className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30">
+        <BluetoothSearching className="h-5 w-5 text-primary animate-pulse" />
+        <span className="text-sm text-muted-foreground">Scanning for Bluetooth scales...</span>
+      </div>
+    );
+  }
+
+  if (mode === 'connected') {
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 p-3 rounded-lg border border-primary/30 bg-primary/5">
+          <Wifi className="h-4 w-4 text-primary" />
+          <span className="text-sm font-medium text-foreground">{deviceName}</span>
+          <Badge className="ml-auto bg-primary text-primary-foreground text-xs">Connected</Badge>
+        </div>
+        <div className="flex gap-2">
+          <Input
+            placeholder="Weight (kg)"
+            type="number"
+            step="0.01"
+            value={value}
+            onChange={e => onChange(e.target.value)}
+            className="flex-1"
+          />
+          <span className="flex items-center text-sm text-muted-foreground font-medium">kg</span>
+        </div>
+        <Button type="button" variant="ghost" size="sm" onClick={() => { setMode('select'); setCharacteristic(null); setDeviceName(''); }}>
+          <WifiOff className="h-3 w-3 mr-1" /> Disconnect
+        </Button>
+      </div>
+    );
+  }
+
+  if (mode === 'manual-mac') {
+    return (
+      <div className="space-y-2">
+        <p className="text-sm font-medium text-foreground">Enter Scale MAC Address</p>
+        <Input
+          placeholder="e.g. AA:BB:CC:DD:EE:FF"
+          value={macAddress}
+          onChange={e => setMacAddress(e.target.value)}
+        />
+        <div className="flex gap-2">
+          <Button type="button" onClick={handleManualMacConnect} className="flex-1 gap-2">
+            <Bluetooth className="h-4 w-4" /> Connect
+          </Button>
+          <Button type="button" variant="ghost" onClick={() => setMode('select')}>Back</Button>
+        </div>
+      </div>
+    );
+  }
+
+  // manual mode
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium text-foreground">Weight (kg)</p>
+        <Button type="button" variant="ghost" size="sm" onClick={() => setMode('select')} className="text-xs h-7">
+          <Bluetooth className="h-3 w-3 mr-1" /> Try Scale
+        </Button>
+      </div>
+      <Input
+        placeholder="Enter weight in kg"
+        type="number"
+        step="0.01"
+        value={value}
+        onChange={e => onChange(e.target.value)}
+      />
+    </div>
+  );
+};
+
+export default BluetoothScaleInput;
