@@ -12,17 +12,22 @@ interface BluetoothScaleInputProps {
 
 type InputMode = 'select' | 'scanning' | 'connected' | 'manual-mac' | 'manual';
 
+const getNavigatorBluetooth = (): any => {
+  return (navigator as any).bluetooth;
+};
+
 const BluetoothScaleInput = ({ value, onChange }: BluetoothScaleInputProps) => {
   const [mode, setMode] = useState<InputMode>('select');
   const [scanning, setScanning] = useState(false);
   const [deviceName, setDeviceName] = useState('');
   const [macAddress, setMacAddress] = useState('');
-  const [characteristic, setCharacteristic] = useState<BluetoothRemoteGATTCharacteristic | null>(null);
+  const [connectedCharacteristic, setConnectedCharacteristic] = useState<any>(null);
 
   const isBluetoothSupported = typeof navigator !== 'undefined' && 'bluetooth' in navigator;
 
   const handleDiscoverScale = async () => {
-    if (!isBluetoothSupported) {
+    const bt = getNavigatorBluetooth();
+    if (!bt) {
       toast({ title: 'Bluetooth not supported', description: 'Your browser does not support Web Bluetooth. Try Chrome on desktop or Android.', variant: 'destructive' });
       setMode('manual');
       return;
@@ -32,32 +37,30 @@ const BluetoothScaleInput = ({ value, onChange }: BluetoothScaleInputProps) => {
     setMode('scanning');
 
     try {
-      const device = await navigator.bluetooth.requestDevice({
+      const device = await bt.requestDevice({
         acceptAllDevices: true,
         optionalServices: ['weight_scale', '0000181d-0000-1000-8000-00805f9b34fb', '0000fff0-0000-1000-8000-00805f9b34fb'],
       });
 
       setDeviceName(device.name || 'Unknown Scale');
-
       toast({ title: 'Device found', description: `Connecting to ${device.name || 'scale'}...` });
 
       const server = await device.gatt?.connect();
       if (!server) throw new Error('Could not connect to GATT server');
 
-      // Try common scale service UUIDs
       const serviceUUIDs = [
-        '0000181d-0000-1000-8000-00805f9b34fb', // Weight Scale
-        '0000fff0-0000-1000-8000-00805f9b34fb', // Common custom
+        '0000181d-0000-1000-8000-00805f9b34fb',
+        '0000fff0-0000-1000-8000-00805f9b34fb',
       ];
 
-      let foundCharacteristic: BluetoothRemoteGATTCharacteristic | null = null;
+      let foundChar: any = null;
 
       for (const uuid of serviceUUIDs) {
         try {
           const service = await server.getPrimaryService(uuid);
           const chars = await service.getCharacteristics();
           if (chars.length > 0) {
-            foundCharacteristic = chars[0];
+            foundChar = chars[0];
             break;
           }
         } catch {
@@ -65,44 +68,40 @@ const BluetoothScaleInput = ({ value, onChange }: BluetoothScaleInputProps) => {
         }
       }
 
-      if (foundCharacteristic) {
-        setCharacteristic(foundCharacteristic);
+      if (foundChar) {
+        setConnectedCharacteristic(foundChar);
         setMode('connected');
 
-        // Try to read or listen for notifications
         try {
-          await foundCharacteristic.startNotifications();
-          foundCharacteristic.addEventListener('characteristicvaluechanged', (event: Event) => {
-            const target = event.target as BluetoothRemoteGATTCharacteristic;
-            const dataView = target.value;
+          await foundChar.startNotifications();
+          foundChar.addEventListener('characteristicvaluechanged', (event: any) => {
+            const dataView = event.target.value;
             if (dataView) {
-              // Common weight scale data parsing (varies by device)
               const weight = dataView.getUint16(1, true) / 100;
               onChange(weight.toString());
             }
           });
           toast({ title: 'Scale connected!', description: 'Weight will update automatically.' });
         } catch {
-          // Fallback: try a single read
           try {
-            const readValue = await foundCharacteristic.readValue();
+            const readValue = await foundChar.readValue();
             const weight = readValue.getUint16(1, true) / 100;
             onChange(weight.toString());
             toast({ title: 'Weight read', description: `${weight} kg` });
           } catch {
-            toast({ title: 'Connected', description: 'Scale connected but could not auto-read. Enter weight manually.' });
+            toast({ title: 'Connected', description: 'Could not auto-read. Enter weight manually.' });
             setMode('manual');
           }
         }
       } else {
-        toast({ title: 'Connected', description: 'No weight service found. Please enter weight manually.' });
+        toast({ title: 'Connected', description: 'No weight service found. Enter weight manually.' });
         setMode('manual');
       }
 
       device.addEventListener('gattserverdisconnected', () => {
         setMode('select');
         setDeviceName('');
-        setCharacteristic(null);
+        setConnectedCharacteristic(null);
         toast({ title: 'Scale disconnected' });
       });
 
@@ -118,12 +117,12 @@ const BluetoothScaleInput = ({ value, onChange }: BluetoothScaleInputProps) => {
     }
   };
 
-  const handleManualMacConnect = async () => {
+  const handleManualMacConnect = () => {
     if (!macAddress.trim()) {
       toast({ title: 'Enter MAC address', variant: 'destructive' });
       return;
     }
-    toast({ title: 'MAC address saved', description: `Attempting connection to ${macAddress}. If no scale responds, enter weight manually.` });
+    toast({ title: 'MAC address saved', description: `Noted ${macAddress}. Web Bluetooth cannot connect by MAC directly — enter weight manually.` });
     setMode('manual');
   };
 
@@ -194,7 +193,7 @@ const BluetoothScaleInput = ({ value, onChange }: BluetoothScaleInputProps) => {
           />
           <span className="flex items-center text-sm text-muted-foreground font-medium">kg</span>
         </div>
-        <Button type="button" variant="ghost" size="sm" onClick={() => { setMode('select'); setCharacteristic(null); setDeviceName(''); }}>
+        <Button type="button" variant="ghost" size="sm" onClick={() => { setMode('select'); setConnectedCharacteristic(null); setDeviceName(''); }}>
           <WifiOff className="h-3 w-3 mr-1" /> Disconnect
         </Button>
       </div>
