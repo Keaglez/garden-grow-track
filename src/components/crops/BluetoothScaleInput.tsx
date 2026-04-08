@@ -60,6 +60,8 @@ const BluetoothScaleInput = ({ value, onChange }: BluetoothScaleInputProps) => {
       const serviceUUIDs = [
         '0000181d-0000-1000-8000-00805f9b34fb',
         '0000fff0-0000-1000-8000-00805f9b34fb',
+        '0000ffe0-0000-1000-8000-00805f9b34fb',
+        '0000ffb0-0000-1000-8000-00805f9b34fb',
       ];
 
       let foundChar: any = null;
