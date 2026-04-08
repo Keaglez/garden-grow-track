@@ -118,11 +118,12 @@ const BluetoothScaleInput = ({ value, onChange }: BluetoothScaleInputProps) => {
 
     } catch (err: any) {
       if (err?.name === 'NotFoundError') {
-        toast({ title: 'No device selected', description: 'You cancelled the device picker.' });
+        // User cancelled picker — silently go back to selection
+        setMode('select');
       } else {
         toast({ title: 'Bluetooth error', description: err?.message || 'Could not connect to scale.', variant: 'destructive' });
+        setMode('select');
       }
-      setMode('select');
     } finally {
       setScanning(false);
     }
