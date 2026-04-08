@@ -37,19 +37,70 @@ const BluetoothScaleInput = ({ value, onChange }: BluetoothScaleInputProps) => {
     setMode('scanning');
 
     try {
-      const device = await bt.requestDevice({
-        acceptAllDevices: true,
-        optionalServices: [
-          'weight_scale',
-          '0000181d-0000-1000-8000-00805f9b34fb',
-          '0000fff0-0000-1000-8000-00805f9b34fb',
-          '0000ffe0-0000-1000-8000-00805f9b34fb',
-          '0000ffb0-0000-1000-8000-00805f9b34fb',
-          'battery_service',
-          'device_information',
-          'generic_access',
-        ],
-      });
+      // Try with filters first to show relevant devices, fall back to acceptAllDevices
+      let device: any;
+      try {
+        device = await bt.requestDevice({
+          filters: [
+            { services: ['weight_scale'] },
+            { services: [0x181D] },
+            { services: [0xFFF0] },
+            { services: [0xFFE0] },
+            { services: [0xFFB0] },
+            { namePrefix: 'Scale' },
+            { namePrefix: 'scale' },
+            { namePrefix: 'BLE' },
+            { namePrefix: 'Weight' },
+            { namePrefix: 'MI' },
+            { namePrefix: 'Xiaomi' },
+            { namePrefix: 'MIBFS' },
+            { namePrefix: 'QN-Scale' },
+            { namePrefix: 'Electronic' },
+            { namePrefix: 'Health' },
+            { namePrefix: 'Chefman' },
+            { namePrefix: 'Kitchen' },
+            { namePrefix: 'RENPHO' },
+            { namePrefix: 'Eufy' },
+            { namePrefix: 'Wyze' },
+            { namePrefix: 'Greater' },
+            { namePrefix: 'Etekcity' },
+            { namePrefix: 'IF_' },
+          ],
+          optionalServices: [
+            'weight_scale',
+            0x181D, 0xFFF0, 0xFFE0, 0xFFB0, 0xFFA0,
+            0x1800, 0x1801, 0x180A, 0x180F,
+            '0000181d-0000-1000-8000-00805f9b34fb',
+            '0000fff0-0000-1000-8000-00805f9b34fb',
+            '0000ffe0-0000-1000-8000-00805f9b34fb',
+            '0000ffb0-0000-1000-8000-00805f9b34fb',
+            'battery_service',
+            'device_information',
+            'generic_access',
+          ],
+        });
+      } catch (filterErr: any) {
+        // If filtered scan finds nothing, try acceptAllDevices
+        if (filterErr?.name === 'NotFoundError') {
+          device = await bt.requestDevice({
+            acceptAllDevices: true,
+            optionalServices: [
+              'weight_scale',
+              0x181D, 0xFFF0, 0xFFE0, 0xFFB0, 0xFFA0,
+              0x1800, 0x1801, 0x180A, 0x180F,
+              '0000181d-0000-1000-8000-00805f9b34fb',
+              '0000fff0-0000-1000-8000-00805f9b34fb',
+              '0000ffe0-0000-1000-8000-00805f9b34fb',
+              '0000ffb0-0000-1000-8000-00805f9b34fb',
+              'battery_service',
+              'device_information',
+              'generic_access',
+            ],
+          });
+        } else {
+          throw filterErr;
+        }
+      }
 
       setDeviceName(device.name || 'Unknown Scale');
       toast({ title: 'Device found', description: `Connecting to ${device.name || 'scale'}...` });
