@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Plus, ImagePlus } from 'lucide-react';
+import BluetoothScaleInput from '@/components/crops/BluetoothScaleInput';
 import { compressImageToBase64 } from '@/lib/imageUtils';
 import { useGarden } from '@/context/GardenContext';
 import { Button } from '@/components/ui/button';
@@ -126,17 +127,7 @@ const Crops = () => {
                     ))}
                   </SelectContent>
                 </Select>
-                <div className="flex gap-2">
-                  <Input placeholder="Quantity" type="number" value={quantity} onChange={e => setQuantity(e.target.value)} />
-                  <Select value={unit} onValueChange={setUnit}>
-                    <SelectTrigger className="w-28"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="kg">kg</SelectItem>
-                      <SelectItem value="pieces">pcs</SelectItem>
-                      <SelectItem value="bunches">bunches</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <BluetoothScaleInput value={quantity} onChange={setQuantity} />
                 <Select value={quality} onValueChange={v => setQuality(v as Harvest['quality'])}>
                   <SelectTrigger><SelectValue placeholder="Quality" /></SelectTrigger>
                   <SelectContent>
